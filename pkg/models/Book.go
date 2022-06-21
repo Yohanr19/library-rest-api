@@ -6,15 +6,15 @@ import (
 
 type Book struct {
 	gorm.Model
-	Title string
+	Title  string
 	Author string
-	Year int
-	Pages []Page
+	Year   int
+	Pages  []Page
 }
 type Page struct {
 	gorm.Model
-	Text string
-	BookID uint //Foreign Key
+	Text       string
+	BookID     uint //Foreign Key
 	PageNumber int
-	Type string
+	Type       string
 }
