@@ -1,7 +1,10 @@
 package controlers
 
 import (
+	"strconv"
+
 	"github.com/yohanr19/library-rest-api/pkg/models"
+	"gorm.io/gorm"
 
 	"encoding/json"
 	"net/http"
@@ -22,7 +25,38 @@ type PageData struct {
 }
 
 type BookControler struct {
-	Store *models.BookStore
+	store *models.BookStore
+}
+
+func (bc *BookControler) GetBook(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var responseBook BookData
+	r.ParseForm()
+	query := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(query)
+	if err != nil {
+		http.Error(w, "Bad Query", http.StatusBadRequest)
+		return
+	}
+	book, err := bc.store.GetBookByID(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+	copyBook(&responseBook, book)
+	enconder := json.NewEncoder(w)
+	err = enconder.Encode(&responseBook)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (bc *BookControler) GetAllBooks(w http.ResponseWriter, r *http.Request) {
@@ -32,21 +66,10 @@ func (bc *BookControler) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	}
 	var response []BookData
 
-	books := bc.Store.GetBooks()
+	books := bc.store.GetBooks()
 	for _, book := range books {
 		var responseBook BookData
-		responseBook.ID = book.ID
-		responseBook.Author = book.Author
-		responseBook.Title = book.Title
-		responseBook.Year = book.Year
-		for _, page := range book.Pages {
-			var responsePage PageData
-			responsePage.Text = page.Text
-			responsePage.Type = page.Type
-			responsePage.BookID = page.BookID
-			responsePage.PageNumber = page.PageNumber
-			responseBook.Pages = append(responseBook.Pages, responsePage)
-		}
+		copyBook(&responseBook, book)
 		response = append(response, responseBook)
 	}
 	enconder := json.NewEncoder(w)
@@ -59,6 +82,21 @@ func (bc *BookControler) GetAllBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bc *BookControler) Init() error {
-	bc.Store = &models.BookStore{}
-	return bc.Store.InitDB()
+	bc.store = &models.BookStore{}
+	return bc.store.InitDB()
+}
+
+func copyBook(responseStruct *BookData, book *models.Book) {
+	responseStruct.ID = book.ID
+	responseStruct.Author = book.Author
+	responseStruct.Title = book.Title
+	responseStruct.Year = book.Year
+	for _, page := range book.Pages {
+		var responsePage PageData
+		responsePage.Text = page.Text
+		responsePage.Type = page.Type
+		responsePage.BookID = page.BookID
+		responsePage.PageNumber = page.PageNumber
+		responseStruct.Pages = append(responseStruct.Pages, responsePage)
+	}
 }

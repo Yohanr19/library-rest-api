@@ -48,3 +48,11 @@ func (bs *BookStore) GetBooks() []*Book {
 	}
 	return Books
 }
+func (bs *BookStore) GetBookByID(id int) (*Book, error) {
+	result := &Book{}
+	if err := bs.db.First(result, `id = ?`, id).Error; err != nil {
+		return nil, err
+	}
+	bs.db.Find(&result.Pages, `book_id = ?`, result.ID)
+	return result, nil
+}

@@ -21,8 +21,9 @@ func main() {
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/books", BookControler.GetAllBooks)
+	mux.HandleFunc("/book", BookControler.GetBook)
 
-	log.Fatal(http.ListenAndServe("localhost:3002", mux))
+	log.Fatal(http.ListenAndServe("localhost:3001", mux))
 	/*
 		BookStore.AddBook(models.Book{
 			Title: "FineBook",
