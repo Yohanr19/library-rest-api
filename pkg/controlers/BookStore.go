@@ -1,6 +1,7 @@
 package controlers
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/yohanr19/library-rest-api/pkg/models"
@@ -53,6 +54,51 @@ func (bc *BookControler) GetBook(w http.ResponseWriter, r *http.Request) {
 	copyBook(&responseBook, book)
 	enconder := json.NewEncoder(w)
 	err = enconder.Encode(&responseBook)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+}
+func (bc *BookControler) GetPage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	r.ParseForm()
+	bookid, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		http.Error(w, "Bad Query", http.StatusBadRequest)
+		return
+	}
+	pageNumber, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil {
+		http.Error(w, "Bad Query", http.StatusBadRequest)
+		return
+	}
+	pageType := r.URL.Query().Get("type")
+	book, err := bc.store.GetBookByID(bookid)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "Not found", http.StatusNotFound)
+		} else {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+	if len(book.Pages) == 0 {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+	for i, v := range book.Pages {
+		if v.PageNumber == pageNumber && v.Type == pageType {
+			fmt.Fprintf(w, "%s", v.Text)
+			return
+		}
+		if i == len(book.Pages)-1 {
+			http.Error(w, "Not found", http.StatusNotFound)
+			return
+		}
+	}
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return

@@ -22,6 +22,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/books", BookControler.GetAllBooks)
 	mux.HandleFunc("/book", BookControler.GetBook)
+	mux.HandleFunc("/page", BookControler.GetPage)
 
 	log.Fatal(http.ListenAndServe("localhost:3001", mux))
 	/*
