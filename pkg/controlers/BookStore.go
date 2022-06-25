@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/yohanr19/library-rest-api/pkg/models"
-	"gorm.io/gorm"
 	"github.com/yohanr19/library-rest-api/pkg/views"
+	"gorm.io/gorm"
 
 	"encoding/json"
 	"net/http"
@@ -147,19 +147,18 @@ func copyBook(responseStruct *BookData, book *models.Book) {
 		responseStruct.Pages = append(responseStruct.Pages, responsePage)
 	}
 }
-func (bs *BookControler)CreateBook(w http.ResponseWriter, r *http.Request){
-	if r.Method == http.MethodGet{
+func (bs *BookControler) CreateBook(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
 		err := views.RenderForm(w, nil)
-		if err!=nil {
+		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			fmt.Print(err)
 		}
-		return 
-	}
-	if r.Method == http.MethodPost{
-		fmt.Fprint(w,"You got the post method")
 		return
 	}
-	
+	if r.Method == http.MethodPost {
+		fmt.Fprint(w, "You got the post method")
+		return
+	}
 
 }

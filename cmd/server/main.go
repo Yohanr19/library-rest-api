@@ -23,7 +23,7 @@ func main() {
 	mux.HandleFunc("/books", BookControler.GetAllBooks)
 	mux.HandleFunc("/book", BookControler.GetBook)
 	mux.HandleFunc("/page", BookControler.GetPage)
-	mux.HandleFunc("/create",BookControler.CreateBook)
+	mux.HandleFunc("/create", BookControler.CreateBook)
 
 	log.Fatal(http.ListenAndServe("localhost:3001", mux))
 	/*

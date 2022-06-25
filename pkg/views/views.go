@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 )
+
 const formTemplate = `
 <h1> Create Book Form </h1>
 <form action="" method="POST"> 
@@ -31,18 +32,19 @@ const formTemplate = `
 </div>
 </form>
 `
-func RenderForm(w http.ResponseWriter, data interface{})error{
-	t , err := template.New("").Parse(formTemplate)
-	if err!=nil {
+
+func RenderForm(w http.ResponseWriter, data interface{}) error {
+	t, err := template.New("").Parse(formTemplate)
+	if err != nil {
 		return err
 	}
 	var buf bytes.Buffer
-	err = t.Execute(&buf,data)
-	if err!=nil{
+	err = t.Execute(&buf, data)
+	if err != nil {
 		return err
 	}
-	_ , err= buf.WriteTo(w)
-	if err!=nil{
+	_, err = buf.WriteTo(w)
+	if err != nil {
 		return err
 	}
 	return nil
