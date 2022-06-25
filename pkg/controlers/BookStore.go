@@ -157,7 +157,21 @@ func (bs *BookControler) CreateBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodPost {
-		fmt.Fprint(w, "You got the post method")
+		var book models.Book
+		err := r.ParseForm()
+		if err!=nil {
+			http.Error(w, "Error Parsing Form",http.StatusBadRequest)
+			return
+		}
+		book.Author = r.PostForm.Get("author")
+		book.Title = r.PostForm.Get("title")
+		book.Year, err = strconv.Atoi(r.PostForm.Get("year"))
+		if err!= nil {
+			http.Error(w, "Error Parsing Form",http.StatusBadRequest)
+			return
+		}
+		bs.store.AddBook(book,[]string{"auto generated page"},[]string{"<h1>auto generated page</h1>"})
+		fmt.Fprint(w,"<h1>Book Created</h1>")
 		return
 	}
 
